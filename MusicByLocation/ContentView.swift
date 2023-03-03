@@ -14,7 +14,7 @@ struct ContentView: View {
         Section {
             VStack {
                 Image(systemName: "location.north")
-                Text(locationHandler.displayLastKnowLocation())
+                Text(locationHandler.lastKnownLocation)
                     .padding()
             }
             Button("Find Music ", action: {

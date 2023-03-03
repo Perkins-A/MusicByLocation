@@ -11,10 +11,8 @@ import CoreLocation
 class LocationHandler: NSObject, CLLocationManagerDelegate, ObservableObject {
     let manager = CLLocationManager()
     let geocoder = CLGeocoder()
-    var lastKnownCoordinates: String = ""
-    @Published var lastKnownCity: String = "huh"
-    @Published var lastKnownCountry: String = "uh"
-    @Published var lastKnownInterest: [String] = ["damn"]
+    
+    @Published var lastKnownLocation: String = ""
     
     override init() {
         super.init()
@@ -33,31 +31,17 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, ObservableObject {
         if let firstLocation = locations.first {
             geocoder.reverseGeocodeLocation(firstLocation, completionHandler: { (placemarks, error) in
                 if error != nil {
-                    self.lastKnownCity = "Could not perform look up of location from coordinate information"
+                    self.lastKnownLocation = "Could not perform look up of location from coordinate information"
                 } else {
                     if let firstPlacemark = placemarks?[0] {
-                        self.lastKnownCity = firstPlacemark.locality ?? "Couldn't find locality"
-                        self.lastKnownCountry = firstPlacemark.country ?? "Couldn't find region"
-                        self.lastKnownInterest = firstPlacemark.areasOfInterest ?? ["Couldn't find anywhere interesting"]
-                    } else {
-                        self.lastKnownCity = "No placemarks"
+                        self.lastKnownLocation = firstPlacemark.getLocationBreakdown()
                     }
                 }
             })
-        } else {
-            self.lastKnownCity = "No location"
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        lastKnownCoordinates = "Error finding location"
-    }
-    
-    func displayLastKnowLocation() -> String {
-        return """
-        Country: \(lastKnownCountry)
-        City: \(lastKnownCity)
-        Areas of Interest: \(lastKnownInterest[0])
-        """
+        lastKnownLocation = "Error finding location"
     }
 }
